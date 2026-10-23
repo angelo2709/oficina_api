@@ -1,0 +1,47 @@
+1. O que precisa estar rodando no seu PC
+Como o seu projeto usa o MySQL (Database First), o banco de dados precisa estar ligado.
+
+Se você instalou o MySQL como serviço no Windows, ele provavelmente inicia sozinho com o computador.
+
+Se você usa o XAMPP ou Laragon para o MySQL, abra o painel e clique em Start no MySQL antes de abrir a API.
+
+2. Como abrir e rodar a API
+Abra o Visual Studio Code.
+
+Vá em File > Open Folder (Arquivo > Abrir Pasta) e selecione a pasta do projeto: oficina_api.
+
+Abra o terminal integrado do VS Code (atalho: Ctrl + ` ou no menu Terminal > New Terminal).
+
+Digite o comando para rodar:
+
+bash
+dotnet run
+3. Acessando o sistema
+Após rodar o comando, o terminal vai exibir uma mensagem parecida com esta:
+
+text
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5171
+Atenção à porta: A porta (5171, no exemplo acima) pode mudar se você tiver outros projetos rodando. Olhe sempre o número que aparecer na sua tela.
+
+Para abrir o Swagger, vá no seu navegador e digite a URL que apareceu no terminal, adicionando /swagger no final:
+
+👉 http://localhost:5171/swagger
+
+Dicas importantes para o futuro:
+Se você reiniciar o computador e a porta mudar: O arquivo Properties/launchSettings.json é quem define a porta padrão (geralmente a 5171 ou 7000). Se ela mudar toda hora, é porque outro programa está usando a porta padrão. Basta olhar o terminal.
+
+Se der erro dotnet: command not found: Significa que o SDK do .NET não está instalado na máquina que você está usando. Será preciso instalar o .NET 10 SDK.
+
+Fechar a API: Para parar o servidor, vá no terminal do VS Code e aperte Ctrl + C. Isso desliga a API. Se você fechar o VS Code, ele também desliga sozinho.
+
+Não precisa rodar o scaffold de novo: Os comandos que fizemos no tutorial (como dotnet ef dbcontext scaffold) servem apenas para gerar os arquivos pela primeira vez. Para apenas rodar o projeto, o único comando necessário é o dotnet run.
+
+E se você quiser levar o projeto para outro computador?
+Você não pode simplesmente copiar a pasta bin ou obj. O correto é:
+
+Copiar a pasta raiz do projeto (ou zipar ela).
+
+No outro computador, ter o .NET 10 SDK e o MySQL instalados.
+
+Rodar o comando dotnet restore (para baixar as dependências do projeto) e depois dotnet run.
