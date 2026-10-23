@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorial Definitivo: WebAPI .NET 10 + MySQL - Oficina Mecânica</title>
+<style>
+:root{
+    --bg:#f6f7f9;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --border:#e5e7eb;
+    --dark:#111827;
+    --code:#0f172a;
+    --code-text:#e5eefc;
+    --ok:#0f766e;
+    --warn:#92400e;
+    --danger:#b91c1c;
+}
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+}
+header{
+    background:var(--dark);
+    color:#fff;
+    padding:48px 24px;
+}
+header .wrap, main{
+    max-width:980px;
+    margin:0 auto;
+}
+h1{margin:0 0 10px;font-size:2rem}
+header p{margin:0;color:#d1d5db}
+main{padding:32px 20px 64px}
+section{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:26px;
+    margin-bottom:22px;
+    box-shadow:0 4px 18px rgba(0,0,0,.03);
+}
+h2{margin-top:0;font-size:1.35rem;color:var(--dark)}
+h3{margin-bottom:8px}
+p{margin:8px 0 16px}
+.note{
+    padding:14px 16px;
+    border-left:4px solid var(--ok);
+    background:#f0fdfa;
+    border-radius:8px;
+    margin:16px 0;
+}
+.warn{
+    padding:14px 16px;
+    border-left:4px solid var(--warn);
+    background:#fffbeb;
+    border-radius:8px;
+    margin:16px 0;
+}
+.danger{
+    padding:14px 16px;
+    border-left:4px solid var(--danger);
+    background:#fef2f2;
+    border-radius:8px;
+    margin:16px 0;
+}
+.code-wrap{
+    position:relative;
+    margin:12px 0 16px;
+}
+pre{
+    margin:0;
+    background:var(--code);
+    color:var(--code-text);
+    padding:18px;
+    border-radius:10px;
+    overflow:auto;
+    font-family:Consolas,Monaco,monospace;
+    font-size:.92rem;
+    line-height:1.55;
+}
+button.copy{
+    position:absolute;
+    right:10px;
+    top:10px;
+    border:0;
+    border-radius:7px;
+    padding:7px 10px;
+    background:#334155;
+    color:#fff;
+    cursor:pointer;
+    font-size:.8rem;
+}
+button.copy:hover{background:#475569}
+code.inline{
+    background:#eef2f7;
+    padding:2px 6px;
+    border-radius:5px;
+    font-family:Consolas,monospace;
+}
+ul,ol{padding-left:22px}
+.flow{
+    display:grid;
+    gap:8px;
+    margin-top:12px;
+}
+.flow div{
+    border:1px solid var(--border);
+    background:#fafafa;
+    border-radius:8px;
+    padding:10px 12px;
+}
+footer{
+    text-align:center;
+    color:var(--muted);
+    padding:24px;
+    font-size:.9rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="wrap">
+        <h1>WebAPI .NET 10 + MySQL</h1>
+        <p>Oficina Mecânica — Guia Definitivo (Database First)</p>
+    </div>
+</header>
+
+<main>
+
+<section>
+    <h2>Objetivo</h2>
+    <p>Construir uma WebAPI em .NET 10 a partir do banco MySQL <code class="inline">oficina</code> já existente, corrigindo problemas comuns de HTTPS, referências circulares e configuração de portas.</p>
+
+    <div class="flow">
+        <div>1. Criar o projeto WebAPI sem restaurar os pacotes</div>
+        <div>2. Atualizar o Microsoft.OpenApi</div>
+        <div>3. Instalar Entity Framework Core e MySQL</div>
+        <div>4. Configurar a singularização em português</div>
+        <div>5. Gerar Models e DbContext (Database First)</div>
+        <div>6. Configurar o acesso ao banco e o <code>Program.cs</code></div>
+        <div>7. Gerar os Controllers</div>
+        <div>8. Configurar o Swagger e corrigir referências circulares</div>
+        <div>9. Configurar HTTPS e Portas fixas (sem launchSettings)</div>
+        <div>10. Executar e testar a API</div>
+    </div>
+</section>
+
+<section>
+    <h2>1. Criar o projeto WebAPI</h2>
+    <p>Abra o terminal e crie o projeto sem restaurar pacotes (isso evita conflitos de versão iniciais).</p>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet new webapi -n oficina_api --use-controllers --no-restore</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>cd oficina_api</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>code .</pre>
+    </div>
+</section>
+
+<section>
+    <h2>2. Atualizar o Microsoft.OpenApi e restaurar</h2>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package Microsoft.OpenApi --version 2.12.2 --no-restore</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet restore</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet build</pre>
+    </div>
+</section>
+
+<section>
+    <h2>3. Instalar Entity Framework Core, MySQL e corrigir vulnerabilidade</h2>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package MySql.EntityFrameworkCore --version 10.0.9</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package Microsoft.EntityFrameworkCore.Design --version 10.0.12</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package Microsoft.EntityFrameworkCore.Tools --version 10.0.12</pre>
+    </div>
+    <div class="warn">
+        <strong>Aviso de Vulnerabilidade (NU1902/NU1903):</strong> Se durante o build aparecerem avisos sobre o pacote <code class="inline">System.Security.Cryptography.Pkcs</code>, rode o comando abaixo para forçar a versão segura:
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package System.Security.Cryptography.Pkcs --version 9.0.21</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet tool install --global dotnet-ef --version 10.0.12</pre>
+    </div>
+    <p><em>(Se a ferramenta já existir, use <code class="inline">dotnet tool update --global dotnet-ef</code>).</em></p>
+</section>
+
+<section>
+    <h2>4. Configurar a singularização em português</h2>
+    <p>O scaffolding gera nomes errados (ex: <code class="inline">FornecedoresPecas.cs</code>). Vamos corrigir isso.</p>
+    
+    <h3>4.1 Criar a pasta Design e o arquivo PortuguesePluralizer.cs</h3>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>using Microsoft.EntityFrameworkCore.Design;
+
+namespace oficina_api.Design;
+
+public class PortuguesePluralizer : IPluralizer
+{
+    public string Singularize(string identifier)
+    {
+        return identifier.ToLower() switch
+        {
+            "categorias" => "Categoria",
+            "fabricantes" => "Fabricante",
+            "pecas" => "Peca",
+            "fornecedores" => "Fornecedor",
+            "fornecedorespecas" => "FornecedorPeca",
+            "fornecedores_pecas" => "FornecedorPeca",
+            _ => identifier
+        };
+    }
+
+    public string Pluralize(string identifier)
+    {
+        return identifier switch
+        {
+            "Categoria" => "Categorias",
+            "Fabricante" => "Fabricantes",
+            "Peca" => "Pecas",
+            "Fornecedor" => "Fornecedores",
+            "FornecedorPeca" => "FornecedoresPecas",
+            _ => identifier
+        };
+    }
+}</pre>
+    </div>
+
+    <h3>4.2 Criar o arquivo DesignTimeServices.cs</h3>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace oficina_api.Design;
+
+public class DesignTimeServices : IDesignTimeServices
+{
+    public void ConfigureDesignTimeServices(IServiceCollection services)
+    {
+        services.AddSingleton&lt;IPluralizer, PortuguesePluralizer&gt;();
+    }
+}</pre>
+    </div>
+
+    <h3>4.3 Ajustar o .csproj</h3>
+    <p>No arquivo <code class="inline">oficina_api.csproj</code>, garanta que o pacote Design esteja assim:</p>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>&lt;PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12"&gt;
+  &lt;PrivateAssets&gt;all&lt;/PrivateAssets&gt;
+&lt;/PackageReference&gt;</pre>
+    </div>
+    <p>Rode <code class="inline">dotnet build</code> antes de prosseguir.</p>
+</section>
+
+<section>
+    <h2>5. Gerar Models e DbContext</h2>
+    <p>Certifique-se de que o MySQL está rodando e o banco <code class="inline">oficina</code> existe com as tabelas criadas.</p>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet clean</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet build</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet ef dbcontext scaffold "server=localhost;database=oficina;user=root;password=;" MySql.EntityFrameworkCore --output-dir Models --context-dir Data --context OficinaContext --no-onconfiguring</pre>
+    </div>
+    <p>Verifique se os arquivos gerados na pasta <code class="inline">Models</code> estão com os nomes corretos (Categoria, Fabricante, Peca, Fornecedor, FornecedorPeca).</p>
+</section>
+
+<section>
+    <h2>6. Configurar o Program.cs e o Banco</h2>
+
+    <h3>6.1 appsettings.json</h3>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>{
+  "ConnectionStrings": {
+    "DefaultConnection": "server=localhost;database=oficina;user=root;password=;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}</pre>
+    </div>
+
+    <h3>6.2 Program.cs (Com correção de ciclos e HTTPS)</h3>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>using oficina_api.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configuração de Portas (Substitui o launchSettings.json ausente)
+builder.WebHost.UseUrls("https://localhost:7000;http://localhost:7001");
+
+// Adiciona Controllers e Configura o Serializador para ignorar ciclos
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
+builder.Services.AddDbContext&lt;OficinaContext&gt;(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseMySQL(connectionString!);
+});
+
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();</pre>
+    </div>
+</section>
+
+<section>
+    <h2>7. Gerar os Controllers</h2>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package NuGet.Packaging --version 7.9.0</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package NuGet.Protocol --version 7.9.0</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 10.0.2</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet tool install --global dotnet-aspnet-codegenerator</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 10.0.12</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet build</pre>
+    </div>
+    
+    <p>Gere todos os controllers:</p>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet aspnet-codegenerator controller -name CategoriasController -async -api -m Categoria -dc OficinaContext -outDir Controllers</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet aspnet-codegenerator controller -name FabricantesController -async -api -m Fabricante -dc OficinaContext -outDir Controllers</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet aspnet-codegenerator controller -name PecasController -async -api -m Peca -dc OficinaContext -outDir Controllers</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet aspnet-codegenerator controller -name FornecedoresController -async -api -m Fornecedor -dc OficinaContext -outDir Controllers</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet aspnet-codegenerator controller -name FornecedoresPecasController -async -api -m FornecedorPeca -dc OficinaContext -outDir Controllers</pre>
+    </div>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet build</pre>
+    </div>
+</section>
+
+<section>
+    <h2>8. Configurar o Swagger</h2>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet add package Swashbuckle.AspNetCore.SwaggerUI</pre>
+    </div>
+    <p>No <code class="inline">Program.cs</code>, dentro do <code class="inline">if (app.Environment.IsDevelopment())</code>, adicione o Swagger:</p>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Oficina API v1");
+    });
+}</pre>
+    </div>
+</section>
+
+<section>
+    <h2>9. Executar e Testar</h2>
+    
+    <div class="note">
+        <strong>Certificado HTTPS:</strong> Para que o navegador não bloqueie a porta 7000, rode uma vez:
+        <br><code class="inline">dotnet dev-certs https --trust</code> e clique em "Sim" na janela do Windows.
+    </div>
+
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>dotnet run</pre>
+    </div>
+
+    <p>O terminal mostrará:</p>
+    <div class="code-wrap">
+        <pre>Now listening on: https://localhost:7000
+Now listening on: http://localhost:7001</pre>
+    </div>
+
+    <p>Acesse no navegador:</p>
+    <div class="code-wrap">
+        <button class="copy">Copiar</button>
+        <pre>https://localhost:7000/swagger</pre>
+    </div>
+
+    <p>Você verá a interface do Swagger listando todos os endpoints (Categorias, Fabricantes, etc.). Clique em <strong>GET /api/Categorias</strong> -> <strong>Try it out</strong> -> <strong>Execute</strong> para ver os dados do seu banco retornando em JSON!</p>
+</section>
+
+<section>
+    <h2>10. Dicas para o Futuro (Git e Execução)</h2>
+    <ul>
+        <li><strong>Para rodar novamente:</strong> Abra a pasta no VS Code, abra o terminal e rode <code class="inline">dotnet run</code>. (O banco MySQL precisa estar ligado).</li>
+        <li><strong>Para salvar no Git:</strong> Crie um arquivo <code class="inline">.gitignore</code> na raiz com as pastas <code class="inline">bin/</code> e <code class="inline">obj/</code> dentro. Depois rode:
+            <div class="code-wrap">
+                <button class="copy">Copiar</button>
+                <pre>git add .
+git commit -m "Projeto da Oficina finalizado"
+git push origin main</pre>
+            </div>
+        </li>
+    </ul>
+</section>
+
+</main>
+
+<footer>
+    Tutorial Definitivo — WebAPI .NET 10 + MySQL — Oficina Mecânica
+</footer>
+
+<script>
+document.querySelectorAll('.copy').forEach(button => {
+    button.addEventListener('click', async () => {
+        const pre = button.nextElementSibling;
+        try {
+            await navigator.clipboard.writeText(pre.innerText);
+            const old = button.textContent;
+            button.textContent = 'Copiado!';
+            setTimeout(() => button.textContent = old, 1200);
+        } catch {
+            button.textContent = 'Selecione e copie';
+        }
+    });
+});
+</script>
+
+</body>
+</html>
