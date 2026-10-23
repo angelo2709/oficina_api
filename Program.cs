@@ -6,7 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Adicione este using no topo
 
-// ...
+
+// Adicione esta linha para forçar a porta 7000 (HTTPS) e 7001 (HTTP)
+builder.WebHost.UseUrls("https://localhost:7000;http://localhost:7001");
+
+builder.Services.AddControllers();
+// ... resto do código
+
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
